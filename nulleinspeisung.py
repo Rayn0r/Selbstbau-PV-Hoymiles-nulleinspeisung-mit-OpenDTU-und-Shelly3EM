@@ -153,7 +153,6 @@ while True:
             print(f'Setze Inverterlimit von {round(altes_limit, 1)}\
  W auf {round(SET_POINT, 1)} W... ', end='')
             # Neues Limit setzen
-            LIMIT_IN_PROZENT = (SET_POINT / INVERTER_MAX_POWER) * 100
             r = post_request(
                 f'http://{DTU_IP}/api/limit/config',
                 f'data={{"serial":"{SERIAL}", "limit_type":0, "limit_value":{SET_POINT}}}',
