@@ -9,22 +9,41 @@ Somit wird kein unnötiger Strom ins Betreibernetz abgegeben.
 import time
 import sys
 import json
+import os
+import configparser
 from requests.auth import HTTPBasicAuth
 import requests
 
+CONFIG_FILE_NAME = 'null_config.ini'
+WORK_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_FILE = f'{WORK_DIR}/{CONFIG_FILE_NAME}'
+
+check_file = os.path.isfile(CONFIG_FILE)
+
+if not check_file:
+    print(f"""
+    Please rename supplied {CONFIG_FILE_NAME}.template to {CONFIG_FILE_NAME}
+    and place it into {WORK_DIR}/.
+    Then edit its content according to your setup.
+    """)
+    sys.exit(1)
+
+config = configparser.ConfigParser()
+config.read(CONFIG_FILE)
+
 # Diese Daten müssen angepasst werden:
-SERIAL = "112100000000" # Seriennummer des Hoymiles Wechselrichters
-MAXIMUM_WR = 300 # Maximale Ausgabe des Wechselrichters
-MINIMUM_WR = 100 # Minimale Ausgabe des Wechselrichters
+SERIAL = config['Inverter1']['SERIAL'] # Seriennummer des Hoymiles Wechselrichters
+MAXIMUM_WR = config['Inverter1'].getint('MAXIMUM_WR') # Maximale Ausgabe des Wechselrichters
+MINIMUM_WR = config['Inverter1'].getint('MINIMUM_WR') # Minimale Ausgabe des Wechselrichters
 
-DTU_IP = '192.100.100.20' # IP Adresse von OpenDTU
-DTU_NUTZER = 'admin' # OpenDTU Nutzername
-DTU_PASSWORT = 'openDTU42' # OpenDTU Passwort
+DTU_IP =   config['Inverter1']['DTU_IP'] # IP Adresse von OpenDTU
+DTU_NUTZER = config['Inverter1']['DTU_NUTZER'] # OpenDTU Nutzername
+DTU_PASSWORT = config['Inverter1']['DTU_PASSWORT'] # OpenDTU Passwort
 
-SHELLY_IP = '192.100.100.30' # IP Adresse von Shelly 3EM
+SHELLY_IP = config['Inverter1']['SHELLY_IP'] # IP Adresse von Shelly 3EM
 
-STANDARD_TIMEOUT = 5    # Zeit in Sekunden
-EM3PRO = True           # Wird ein Shelly EM3 Pro eingesetzt?
+STANDARD_TIMEOUT = config['Inverter1'].getint('STANDARD_TIMEOUT') # Zeit in Sekunden
+EM3PRO = config['Inverter1'].getboolean('EM3PRO') # Wird ein Shelly EM3 Pro eingesetzt?
 
 def get_request(url_name, header_definition=''):
     """
